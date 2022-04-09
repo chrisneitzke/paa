@@ -84,13 +84,14 @@ const respostaPares = document.getElementById("respostaPares");
 const conjunto = document.getElementById("c");
 const inteiro = document.getElementById("valor");
 buttonPares.addEventListener('click', encontraPares);
-buttonPares.addEventListener('click', gerarNumeros);
+buttonGerar.addEventListener('click', gerarNumeros);
 
 function gerarNumeros() {
   var temp="";
   for(r=0;r<70;r++) temp+=Math.floor(Math.random() * 400)+";";
   conjunto.value = temp;
   inteiro.value = Math.floor(Math.random() * 80);
+  encontraPares();
 }
 gerarNumeros();
 
