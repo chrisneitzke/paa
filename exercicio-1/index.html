@@ -42,10 +42,11 @@ basear-se na estratégia de força bruta.</p>
 
 <form>
   <label for="c">Conjunto C (números inteiros separados por ponto e vírgula):</label><br>
-  <input type="text" id="c" name="c" style="width: 98%;" pattern="[0-9 ;]+" required><br>
+  <input type="text" id="c" name="c" style="width: 98%;" pattern="[0-9;]+" required><br>
   <label for="valor" min="1">Inteiro I:</label><br>
   <input type="number" id="valor" name="valor" required>
   <input type="button" id="buttonPares" value="Encontrar pares">
+  <input type="button" id="buttonGerar" value="Gerar números aleatórios">
 </form>
 
 <p id="respostaPares"></p>
@@ -78,15 +79,20 @@ basear-se na estratégia de força bruta.</p>
 // QUESTÃO 1 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const buttonPares = document.getElementById('buttonPares');
+const buttonGerar = document.getElementById('buttonGerar');
 const respostaPares = document.getElementById("respostaPares");
 const conjunto = document.getElementById("c");
 const inteiro = document.getElementById("valor");
 buttonPares.addEventListener('click', encontraPares);
+buttonPares.addEventListener('click', gerarNumeros);
 
-var temp="";
-for(r=0;r<70;r++) temp+=Math.floor(Math.random() * 300)+";";
-conjunto.value = temp;
-inteiro.value = Math.floor(Math.random() * 80);
+function gerarNumeros() {
+  var temp="";
+  for(r=0;r<70;r++) temp+=Math.floor(Math.random() * 400)+";";
+  conjunto.value = temp;
+  inteiro.value = Math.floor(Math.random() * 80);
+}
+gerarNumeros();
 
 function encontraPares() {
   const c = conjunto.value.split(";");
