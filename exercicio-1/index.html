@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>PPGCC - PAA - 2022.1 - Christiano Neitzke</title>
+<script src="https://cdn.anychart.com/releases/8.8.0/js/anychart-core.min.js"></script>
+<script src="https://cdn.anychart.com/releases/8.8.0/js/anychart-graph.min.js"></script>
+<style>
+  #container {
+    width: 100%;
+    height: 800px;
+    margin: 0;
+    padding: 0;
+
+    float:left;
+    width:50%;
+    overflow:hidden;
+  }
+  #wrapper{
+    margin:0;
+  }
+  #left{
+    float:left;
+    width:50%;
+    overflow:hidden;
+  }
+</style>
+</head>
+<body>
+ 
+<h4>Universidade Federal do Maranhão<br>
+PPGCC<br>
+Projeto e Análise de Algoritmos<br>
+Prof.: João Dallyson Sousa de Almeida<br>
+Aluno: Christiano Anderson Neitzke</h4>
+
+<h3>Atividade prática 1</h3>
+
+<p>1) Implemente um programa que, dado um conjunto C de n inteiros e outro inteiro I,
+determinar os pares de inteiros de C cuja subtração é exatamente igual a I. Em
+seguida, analise a complexidade do algoritmo proposto. O seu programa deve
+basear-se na estratégia de força bruta.</p>
+
+<form>
+  <label for="c">Conjunto C (números inteiros separados por ponto e vírgula):</label><br>
+  <input type="text" id="c" name="c" style="width: 98%;" pattern="[0-9 ;]+" required><br>
+  <label for="valor" min="1">Inteiro I:</label><br>
+  <input type="number" id="valor" name="valor" required>
+  <input type="button" id="buttonPares" value="Encontrar pares">
+</form>
+
+<p id="respostaPares"></p>
+
+<p>2) Uma topologia de rede de computadores, impressoras e outros dispositivos são
+  conectados através de uma rede. A Figura abaixo ilustra três topologias comuns de
+  redes: anel, estrela e malha totalmente conectada.
+</p>
+<img src="topologias.png" /> 
+<p>Você recebe uma matriz booleana A [0..n - 1, 0..n - 1], onde n> 3, que deverá ser a
+  matriz de adjacência de um grafo que representa uma rede com uma dessas
+  topologias. Sua tarefa é determinar qual dessas três topologias, se houver, a matriz
+  representa. O programa de retornar mensagem “Outra topologia” para matrizes que
+  não apresentam nenhum dos três tipos. Implemente um programa baseado em força
+  bruta para esta tarefa e indique sua classe de eficiência de tempo.
+</p>
+
+<div id="wrapper">
+  <div id="left">
+    <form>
+      <label for="tamanhoMatriz" min="1" id="labelMatriz">Tamanho da matriz: 8</label><br>
+      <input type="range" min="3" max="40" value="8" class="slider" id="tamanhoMatriz">
+    </form>
+    <div id="matrizChecks"></div>
+  </div>
+  <div id="container"></div>
+</div>
+<script>
+
+// QUESTÃO 1 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const buttonPares = document.getElementById('buttonPares');
+const respostaPares = document.getElementById("respostaPares");
+const conjunto = document.getElementById("c");
+const inteiro = document.getElementById("valor");
+buttonPares.addEventListener('click', encontraPares);
+
+var temp="";
+for(r=0;r<70;r++) temp+=Math.floor(Math.random() * 300)+";";
+conjunto.value = temp;
+inteiro.value = Math.floor(Math.random() * 80);
+
+function encontraPares() {
+  const c = conjunto.value.split(";");
+  const v = inteiro.value;
+  var nenhumPar = true;
+
+  respostaPares.innerHTML = "";
+	
+  for (i=0;i<c.length;i++) {
+  	for (j=0;j<c.length;j++) {
+  		if (i!=j) {
+      	if (c[i]-c[j]==v) {
+        	respostaPares.innerHTML += "(i="+i+",j="+j+") > "+c[i]+" - "+c[j]+" = "+v+"<br>";
+          nenhumPar = false;
+        }
+      }
+    }
+  }
+  if (nenhumPar) respostaPares.innerHTML = "Nenhuma combinação encontrada!<br>"
+  respostaPares.innerHTML += "<br>Complexidade do algoritmo é 2n²+4, ou seja, O=(n²)."
+}
+
+
+// QUESTÃO 2 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const slider = document.getElementById("tamanhoMatriz");
+const matrizChecks = document.getElementById("matrizChecks");
+var chart;
+var data;
+
+const maxMatriz = 40;
+var matriz = [];
+var checkbox;
+for(var i=0; i<maxMatriz; i++) {
+    matriz[i] = [];
+    for(var j=0; j<maxMatriz; j++) {
+        checkbox = document.createElement('input');
+        checkbox.type = "checkbox";
+        checkbox.title = i+" - "+j;
+        checkbox.id = "id"+i+"-"+j;
+        checkbox.setAttribute("data-i",i);
+        checkbox.setAttribute("data-j",j);
+        checkbox.addEventListener('change', function() {
+          document.getElementById("id"+this.getAttribute("data-j")+"-"+this.getAttribute("data-i")).checked=this.checked;
+          if (this.checked) {
+            matriz[this.getAttribute("data-i")][this.getAttribute("data-j")] = 1;
+            matriz[this.getAttribute("data-j")][this.getAttribute("data-i")] = 1;
+          } else {
+            matriz[this.getAttribute("data-i")][this.getAttribute("data-j")] = 0;
+            matriz[this.getAttribute("data-j")][this.getAttribute("data-i")] = 0;
+          }
+          desenhaGrafo(slider.value);
+          analisaMatriz(slider.value);
+        });
+        if (i==j) {
+          matriz[i][j] = 0
+          checkbox.checked = false;
+        } else {
+          matriz[i][j] = 1;
+          checkbox.checked = true;
+        }
+        if (i>=j) {
+          checkbox.disabled = true;
+        } 
+        
+        matrizChecks.appendChild(checkbox);
+    }
+    if (i<maxMatriz-1) matrizChecks.appendChild(document.createElement("br"));
+}
+
+
+function desenhaMatriz(n) {
+  for (i=0;i<maxMatriz;i++){
+    for (j=0;j<maxMatriz;j++){
+      if ((i<n)&&(j<n)) {
+        document.getElementById("id"+i+"-"+j).style.visibility = "visible";
+      } else {
+        document.getElementById("id"+i+"-"+j).style.visibility = "hidden";
+      }
+
+    }
+  }
+}
+
+function desenhaGrafo(n) {
+  var nos = [];
+  var ligacoes = [];
+  for (i=0;i<n;i++){
+    nos.push({id: i});
+    for (j=0;j<i;j++){ 
+      if ((matriz[i][j]==1)&&(i!=j)){
+        ligacoes.push({from: i, to: j});
+      }
+    }
+  }
+  document.getElementById("container").innerHTML = "";
+  data = {nodes:nos,edges:ligacoes};
+  chart = anychart.graph(data);
+  chart.container("container").draw();
+  chart.nodes().labels().enabled(true);
+  chart.interactivity().scrollOnMouseWheel(true);
+}
+
+function desenhaTudo(n){
+  desenhaMatriz(n);
+  desenhaGrafo(n);
+  analisaMatriz(n);
+}
+
+slider.oninput = function() {
+  document.getElementById("labelMatriz").innerHTML = "Tamanho da matriz: " + this.value;
+}
+
+slider.onchange = function() {
+  desenhaTudo(this.value)
+}
+
+function analisaMatriz(n) {
+  var x;                                                      // elemento da vez
+  var malha = 1;
+  var ligacoes = [n];                                         // vetor para armazenar quantidade de ligacoes em cada nó
+
+  console.clear();
+  for (i=0;i<n;i++){
+    ligacoes[i]=0;
+    for (j=0;j<n;j++){ 
+      if (i!=j) { 
+        x = matriz[i][j];
+        malha*=x;                                             // Para malha, todas ligaçoes precisam ser igual a 1, se alguma for zero, irá multiplicar por zero
+        ligacoes[i]=ligacoes[i]+x;                            // Para estrela, vou somando ligacoes em cada nó
+      }
+    }
+  }
+  console.table(ligacoes);
+  var qtdEstrela = 0;                                         // Deve ser igual a n ao final
+  var qtdAnel = 0;                                            // Deve ser igual a n ao final
+  for (i=0;i<n;i++) {
+    if ((ligacoes[i]==1)||(ligacoes[i]==n-1)) qtdEstrela++;   // Checar se tem somente 1 nó com todas conexoes e todos outros nós com só uma ligação
+    if ((ligacoes[i]==2)) qtdAnel++;                          // Checar se todos nós estão com 2 conexoes 
+  }
+
+  if (malha==1) {
+    chart.title("RESPOSTA: Topologia Malha! Complexidade do algoritmo é n²+2n, ou seja, O=(n²).");
+  } else if (qtdEstrela==n) {  
+    chart.title("RESPOSTA: Topologia Estrela! Complexidade do algoritmo é n²+2n, ou seja, O=(n²).");
+  } else if (qtdAnel==n) {  
+    chart.title("RESPOSTA: Topologia Anel! Complexidade do algoritmo é n²+2n, ou seja, O=(n²).");
+  } else {
+    chart.title("RESPOSTA: Outra topologia! Complexidade do algoritmo é n²+2n, ou seja, O=(n²).");
+  }
+}
+
+desenhaTudo(slider.value);
+
+</script>
+</body>
+</html>
