@@ -1,3 +1,1 @@
-# UFMA
-# PPGCC
-# PAA
+# UFMA / PPGCC / PAA
