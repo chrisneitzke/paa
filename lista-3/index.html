@@ -22,14 +22,14 @@ Aluno: Christiano Anderson Neitzke</h4>
   combinar cada pote a sua tampa. Implemente um algoritmo para esse problema com
   custo médio de (n log n). Justifique a complexidade do algoritmo proposto.</p>
 
-<form>
-  <label for="c">Conjunto C (números inteiros separados por ponto e vírgula):</label><br>
-  <input type="text" id="c" name="c" style="width: 98%;" pattern="[0-9;]+" required><br>
-  <label for="valor" min="1">Inteiro I:</label><br>
-  <input type="number" id="valor" name="valor" required>
-  <input type="button" id="buttonPares" value="Encontrar pares">
-  <input type="button" id="buttonGerar" value="Gerar números aleatórios">
-</form>
+  <form>
+    <label for="potesQ1">Potes: </label>
+    <input type="text" id="potesQ1" name="potesQ1" style="width: 50%;" pattern="[0-9,]+" required><br><br>
+    <label for="tampaQ1">Tampas: </label>
+    <input type="text" id="tampasQ1" name="tampasQ1" style="width: 50%;" pattern="[0-9,]+" required><br><br>
+    <input type="button" id="buttonRespostaQ1" value="Juntar potes e tampas">
+    <input type="button" id="buttonGerarQ1" value="Gerar números aleatórios">
+  </form>
 
 <p id="respostaQ1"></p>
 
@@ -46,7 +46,7 @@ Aluno: Christiano Anderson Neitzke</h4>
 
 <form>
   <label for="conjuntoCQ2">Entrada: </label>
-  <input type="text" id="conjuntoCQ2" name="conjuntoCQ2" style="width: 50%;" pattern="[0-9;]+" required><br><br>
+  <input type="text" id="conjuntoCQ2" name="conjuntoCQ2" style="width: 50%;" pattern="[0-9,]+" required><br><br>
   <label for="qtdIQ2">Quantidade de itens mais próximos: </label>
   <input type="number" id="qtdIQ2" name="qtdIQ2"  min="1" required><br><br>
   <label for="valorVQ2" min="1">Valor: </label>
@@ -59,6 +59,36 @@ Aluno: Christiano Anderson Neitzke</h4>
 
 <script>
 
+// QUESTÃO 1 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const buttonRespostaQ1 = document.getElementById('buttonRespostaQ1');
+const buttonGerarQ1 = document.getElementById('buttonGerarQ1');
+const respostaQ1 = document.getElementById("respostaQ1");
+const potesQ1 = document.getElementById("potesQ1");
+const tampasQ1 = document.getElementById("tampasQ1");
+var tq1=0;  //contador de complexidade
+buttonRespostaQ1.addEventListener('click', encontrarRespostaQ1);
+buttonGerarQ1.addEventListener('click', gerarNumerosQ1);
+
+function gerarNumerosQ1() {
+  var temp="";
+  for(r=0;r<40;r++) temp+=Math.floor(1+Math.random() * 40)+",";
+  potesQ1.value = temp.substring(0,temp.length-1);
+  temp="";
+  for(r=0;r<40;r++) temp+=Math.floor(1+Math.random() * 40)+",";
+  tampasQ1.value = temp.substring(0,temp.length-1);
+
+  encontrarRespostaQ1();
+}
+gerarNumerosQ1();
+
+function encontrarRespostaQ1() {
+  //ordenar potes e tampas
+  respostaQ1.innerHTML = "Resposta";
+
+}
+
+
 // QUESTÃO 2 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const buttonRespostaQ2 = document.getElementById('buttonRespostaQ2');
@@ -67,7 +97,7 @@ const respostaQ2 = document.getElementById("respostaQ2");
 const conjuntoQ2 = document.getElementById("conjuntoCQ2");
 const qtdIQ2 = document.getElementById("qtdIQ2");
 const valorVQ2 = document.getElementById("valorVQ2");
-var tq1=0;  //contador de complexidade
+var tq2=0;  //contador de complexidade
 buttonRespostaQ2.addEventListener('click', encontrarRespostaQ2);
 buttonGerarQ2.addEventListener('click', gerarNumerosQ2);
 
@@ -89,18 +119,18 @@ function pocuraItensProximosV(vetor,itens,valor,indice,tam) {
   var resp = new Array(parseInt(tamanhoResp)).fill(0);
   var item;
   
-  tq1++;
+  tq2++;
   // SOLUCAO: problema simples o bastante pra retornar os últimos X elementos como os mais próximos
   if (indice >= tam-itens)
   {
     for (i=0;i<tamanhoResp;i++) {
       resp[i]=vetor[indice+i];
-      tq1++;
+      tq2++;
     }
     return resp;
   }
 
-  tq1++;
+  tq2++;
   // DIVISAO: chama recursivamente avançando o índice
   resp = pocuraItensProximosV(vetor,itens,valor,indice + 1,tam);
   
@@ -109,26 +139,26 @@ function pocuraItensProximosV(vetor,itens,valor,indice,tam) {
   var menor=0;
   var maior=0;
   for (i=0;i<tamanhoResp;i++) {
-    tq1++;
+    tq2++;
     // vai atualizando sempre o elemento com maior distância para ser tirado da resposta RESP
     if (Math.abs(resp[i]-valor) > Math.abs(resp[maior]-valor)) { 
       maior=i;  
-      tq1++; 
+      tq2++; 
     }
     
-    tq1++;
+    tq2++;
     // se econtrou algum o índice atual do vetor é menor do que algum item da resposta, guarda ele pra ser trocado pelo maior ao final do loop 
     if (Math.abs(vetor[indice]-valor) < Math.abs(resp[i]-valor)) {
       menor=vetor[indice];
-      tq1++;
+      tq2++;
     }
   }
 
-  tq1++;
+  tq2++;
   // CONQUISTA: checar se houve algum valor atual é menor do que algum item da resposta, para entao ser trocado pelo maior
   if (menor>0) {
     resp[maior] = menor;
-    tq1++;
+    tq2++;
   }
 
   // passa a resposta pra frente pra ser comparada na pilha abaixo da recursao 
@@ -141,12 +171,12 @@ function encontrarRespostaQ2() {
  // console.log(entrada);
   const n = entrada.length;
   respostaQ2.innerHTML = "";
-	tq1=0;
+	tq2=0;
   var saida = pocuraItensProximosV(entrada, parseInt(qtdIQ2.value), parseInt(valorVQ2.value), 0, n);
  
   respostaQ2.innerHTML += "Saída: "+saida+"<br>";
   respostaQ2.innerHTML += "n: "+n+"<br>";
-  respostaQ2.innerHTML += "t: "+tq1+" execuções<br>";
+  respostaQ2.innerHTML += "t: "+tq2+" execuções<br>";
   respostaQ2.innerHTML += "Complexidade: O(nlogn) = "+ Math.floor(n*Math.log2(n)) +"<br><br>";
 
   for (i=0;i<n;i++) {
