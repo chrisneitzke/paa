@@ -33,7 +33,7 @@ Aluno: Christiano Anderson Neitzke</h4>
 
 <p id="respostaQ1"></p>
 
-<p>2) Implemente um algoritmo que retorne o I itens mais próximos de um valor V, para um
+<p><br><br>2) Implemente um algoritmo que retorne o I itens mais próximos de um valor V, para um
   vetor qualquer de elementos inteiros. V pode estar ou não presente no vetor. Sua
   solução deve ser O(nlogn).<br>
   Ex:<br>
@@ -45,13 +45,13 @@ Aluno: Christiano Anderson Neitzke</h4>
 </p>
 
 <form>
-  <label for="conjuntoC">Conjunto C (números inteiros separados por ponto e vírgula):</label><br>
-  <input type="text" id="conjuntoC" name="conjuntoC" style="width: 98%;" pattern="[0-9;]+" required><br>
-  <label for="qtdI">Quantidade I de itens:</label><br>
-  <input type="number" id="qtdI" name="qtdI"  min="1" required>
-  <label for="valorV" min="1">Valor V:</label><br>
-  <input type="number" id="valorV" name="valorV"  min="1" required>
-  <input type="button" id="buttonEncontrar" value="Encontrar I itens">
+  <label for="conjuntoCQ2">Entrada: </label>
+  <input type="text" id="conjuntoCQ2" name="conjuntoCQ2" style="width: 50%;" pattern="[0-9;]+" required><br><br>
+  <label for="qtdIQ2">Quantidade de itens mais próximos: </label>
+  <input type="number" id="qtdIQ2" name="qtdIQ2"  min="1" required><br><br>
+  <label for="valorVQ2" min="1">Valor: </label>
+  <input type="number" id="valorVQ2" name="valorVQ2"  min="1" required><br><br>
+  <input type="button" id="buttonRespostaQ2" value="Encontrar I itens">
   <input type="button" id="buttonGerarQ2" value="Gerar números aleatórios">
 </form>
 
@@ -61,44 +61,97 @@ Aluno: Christiano Anderson Neitzke</h4>
 
 // QUESTÃO 2 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const buttonEncontrar = document.getElementById('buttonEncontrar');
+const buttonRespostaQ2 = document.getElementById('buttonRespostaQ2');
 const buttonGerarQ2 = document.getElementById('buttonGerarQ2');
-const respostaQ2 = document.getElementById("respostaPares");
-const conjunto = document.getElementById("conjuntoC");
-const qtdI = document.getElementById("qtdI");
-const valorV = document.getElementById("valorV");
-buttonEncontrar.addEventListener('click', encontrarI);
-buttonGerarQ2.addEventListener('click', gerarNumeros);
+const respostaQ2 = document.getElementById("respostaQ2");
+const conjuntoQ2 = document.getElementById("conjuntoCQ2");
+const qtdIQ2 = document.getElementById("qtdIQ2");
+const valorVQ2 = document.getElementById("valorVQ2");
+var tq1=0;  //contador de complexidade
+buttonRespostaQ2.addEventListener('click', encontrarRespostaQ2);
+buttonGerarQ2.addEventListener('click', gerarNumerosQ2);
 
-function gerarNumeros() {
+function gerarNumerosQ2() {
   var temp="";
-  for(r=0;r<40;r++) temp+=Math.floor(Math.random() * 50)+";";
-  conjunto.value = temp;
-  qtdI.value = 3+Math.floor(Math.random() * 10);
-  valorV.value = Math.floor(Math.random() * 50);
-  encontrarI();
+  for(r=0;r<30;r++) temp+=Math.floor(10+Math.random() * 50)+",";
+  conjuntoQ2.value = temp.substring(0,temp.length-1);
+  qtdIQ2.value = 3+Math.floor(Math.random() * 7);
+  valorVQ2.value = Math.floor(Math.random() * 50);
+  encontrarRespostaQ2();
 }
-gerarNumeros();
+gerarNumerosQ2();
 
-function encontrarI() {
-  const c = conjunto.value.split(";");
-  const v = valorV.value;
-  var nenhumPar = true;
+function pocuraItensProximosV(vetor,itens,valor,indice,tam) {
 
-  respostaQ2.innerHTML = "";
-	
-  for (i=0;i<c.length;i++) {
-  	for (j=0;j<c.length;j++) {
-  		if (i!=j) {
-      	if (c[i]-c[j]==v) {
-        	respostaQ2.innerHTML += "(i="+i+",j="+j+") > "+c[i]+" - "+c[j]+" = "+v+"<br>";
-          nenhumPar = false;
-        }
-      }
+  var tamanhoResp=itens;
+  if (tam<tamanhoResp) tamanhoResp=tam;
+
+  var resp = new Array(parseInt(tamanhoResp)).fill(0);
+  var item;
+  
+  tq1++;
+  // SOLUCAO: problema simples o bastante pra retornar os últimos X elementos como os mais próximos
+  if (indice >= tam-itens)
+  {
+    for (i=0;i<tamanhoResp;i++) {
+      resp[i]=vetor[indice+i];
+      tq1++;
+    }
+    return resp;
+  }
+
+  tq1++;
+  // DIVISAO: chama recursivamente avançando o índice
+  resp = pocuraItensProximosV(vetor,itens,valor,indice + 1,tam);
+  
+
+  // compara o retorno da funcao recursiva pra ver se o indice autal é menor do que algum dos itens já na resposta
+  var menor=0;
+  var maior=0;
+  for (i=0;i<tamanhoResp;i++) {
+    tq1++;
+    // vai atualizando sempre o elemento com maior distância para ser tirado da resposta RESP
+    if (Math.abs(resp[i]-valor) > Math.abs(resp[maior]-valor)) { 
+      maior=i;  
+      tq1++; 
+    }
+    
+    tq1++;
+    // se econtrou algum o índice atual do vetor é menor do que algum item da resposta, guarda ele pra ser trocado pelo maior ao final do loop 
+    if (Math.abs(vetor[indice]-valor) < Math.abs(resp[i]-valor)) {
+      menor=vetor[indice];
+      tq1++;
     }
   }
-  if (nenhumPar) respostaQ2.innerHTML = "Nenhuma combinação encontrada!<br>"
-  respostaQ2.innerHTML += "<br>Complexidade do algoritmo é 2n²+4, ou seja, O=(n²)."
+
+  tq1++;
+  // CONQUISTA: checar se houve algum valor atual é menor do que algum item da resposta, para entao ser trocado pelo maior
+  if (menor>0) {
+    resp[maior] = menor;
+    tq1++;
+  }
+
+  // passa a resposta pra frente pra ser comparada na pilha abaixo da recursao 
+  return resp;
+}
+
+function encontrarRespostaQ2() {
+  var entrada = conjuntoQ2.value.split(",");
+  entrada = entrada.map(Number);
+ // console.log(entrada);
+  const n = entrada.length;
+  respostaQ2.innerHTML = "";
+	tq1=0;
+  var saida = pocuraItensProximosV(entrada, parseInt(qtdIQ2.value), parseInt(valorVQ2.value), 0, n);
+ 
+  respostaQ2.innerHTML += "Saída: "+saida+"<br>";
+  respostaQ2.innerHTML += "n: "+n+"<br>";
+  respostaQ2.innerHTML += "t: "+tq1+" execuções<br>";
+  respostaQ2.innerHTML += "Complexidade: O(nlogn) = "+ Math.floor(n*Math.log2(n)) +"<br><br>";
+
+  for (i=0;i<n;i++) {
+    respostaQ2.innerHTML +=  (i+1)+". Entrada " + entrada[i] + " (distância "+Math.abs(entrada[i]-parseInt(valorVQ2.value)) +" de V)<br>";
+  }
 }
 
 </script>
