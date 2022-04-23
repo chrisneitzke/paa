@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>PPGCC - PAA - 2022.1 - Christiano Neitzke</title>
+<script src="https://cdn.anychart.com/releases/8.8.0/js/anychart-core.min.js"></script>
+<script src="https://cdn.anychart.com/releases/8.8.0/js/anychart-graph.min.js"></script>
+<style>
+  #container {
+    width: 100%;
+    height: 800px;
+    margin: 0;
+    padding: 0;
+
+    float:left;
+    width:50%;
+    overflow:hidden;
+  }
+  #wrapper{
+    margin:0;
+  }
+  #left{
+    float:left;
+    width:50%;
+    overflow:hidden;
+  }
+</style>
+</head>
+<body>
+ 
+<h4>Universidade Federal do Maranhão<br>
+Programa de Pós-Graduação em Ciência da Computação<br>
+Projeto e Análise de Algoritmos<br>
+Professor: João Dallyson Sousa de Almeida<br>
+Aluno: Christiano Anderson Neitzke</h4>
+
+<h3>Lista 3 - Divisão e Conquista</h3>
+
+<p>1) Dona Maria é viciada em potes plásticos. Sua coleção cresce semanalmente, e
+  atualmente está toda bagunçada, os potes estão sem a referida tampa. Ajude-a na
+  organização associando os P potes de tamanhos diferentes às N tampas
+  correspondentes. Você pode testar um pote e uma tampa juntos, no qual você pode
+  verificar se o pote é maior, menor ou corresponde exatamente à tampa. No entanto,
+  não há como comparar dois potes juntos ou duas tampas juntas. O problema é
+  combinar cada pote a sua tampa. Implemente um algoritmo para esse problema com
+  custo médio de (n log n). Justifique a complexidade do algoritmo proposto.</p>
+
+<form>
+  <label for="c">Conjunto C (números inteiros separados por ponto e vírgula):</label><br>
+  <input type="text" id="c" name="c" style="width: 98%;" pattern="[0-9;]+" required><br>
+  <label for="valor" min="1">Inteiro I:</label><br>
+  <input type="number" id="valor" name="valor" required>
+  <input type="button" id="buttonPares" value="Encontrar pares">
+  <input type="button" id="buttonGerar" value="Gerar números aleatórios">
+</form>
+
+<p id="respostaPares"></p>
+
+<p>2) Implemente um algoritmo que retorne o I itens mais próximos de um valor V, para um
+  vetor qualquer de elementos inteiros. V pode estar ou não presente no vetor. Sua
+  solução deve ser O(nlogn).<br>
+  Ex:<br>
+  Entrada: [ 5, 3, 8, 7, 1, 4, 5]<br>
+  Quantidade de itens mais próximos: 3<br>
+  V = 6<br>
+  Saída: 5, 7, 4<br>
+  Nesse exemplo poderia ser retorna 4 ou 8. Nesses casos, priorize o elemento menor que V.
+</p>
+
+<div id="wrapper">
+  <div id="left">
+    <form>
+      <label for="tamanhoMatriz" min="1" id="labelMatriz">Tamanho da matriz: 8</label><br>
+      <input type="range" min="3" max="40" value="8" class="slider" id="tamanhoMatriz">
+    </form>
+    <div id="matrizChecks"></div>
+  </div>
+  <div id="container"></div>
+</div>
+<script>
+
+// QUESTÃO 1 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const buttonPares = document.getElementById('buttonPares');
+const buttonGerar = document.getElementById('buttonGerar');
+const respostaPares = document.getElementById("respostaPares");
+const conjunto = document.getElementById("c");
+const inteiro = document.getElementById("valor");
+buttonPares.addEventListener('click', encontraPares);
+buttonGerar.addEventListener('click', gerarNumeros);
+
+function gerarNumeros() {
+  var temp="";
+  for(r=0;r<70;r++) temp+=Math.floor(Math.random() * 400)+";";
+  conjunto.value = temp;
+  inteiro.value = Math.floor(Math.random() * 80);
+  encontraPares();
+}
+gerarNumeros();
+
+function encontraPares() {
+  const c = conjunto.value.split(";");
+  const v = inteiro.value;
+  var nenhumPar = true;
+
+  respostaPares.innerHTML = "";
+	
+  for (i=0;i<c.length;i++) {
+  	for (j=0;j<c.length;j++) {
+  		if (i!=j) {
+      	if (c[i]-c[j]==v) {
+        	respostaPares.innerHTML += "(i="+i+",j="+j+") > "+c[i]+" - "+c[j]+" = "+v+"<br>";
+          nenhumPar = false;
+        }
+      }
+    }
+  }
+  if (nenhumPar) respostaPares.innerHTML = "Nenhuma combinação encontrada!<br>"
+  respostaPares.innerHTML += "<br>Complexidade do algoritmo é 2n²+4, ou seja, O=(n²)."
+}
+
+
+// QUESTÃO 2 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const slider = document.getElementById("tamanhoMatriz");
+const matrizChecks = document.getElementById("matrizChecks");
+var chart;
+var data;
+
+const maxMatriz = 40;
+var matriz = [];
+var checkbox;
+for(var i=0; i<maxMatriz; i++) {
+    matriz[i] = [];
+    for(var j=0; j<maxMatriz; j++) {
+        checkbox = document.createElement('input');
+        checkbox.type = "checkbox";
+        checkbox.title = i+" - "+j;
+        checkbox.id = "id"+i+"-"+j;
+        checkbox.setAttribute("data-i",i);
+        checkbox.setAttribute("data-j",j);
+        checkbox.addEventListener('change', function() {
+          document.getElementById("id"+this.getAttribute("data-j")+"-"+this.getAttribute("data-i")).checked=this.checked;
+          if (this.checked) {
+            matriz[this.getAttribute("data-i")][this.getAttribute("data-j")] = 1;
+            matriz[this.getAttribute("data-j")][this.getAttribute("data-i")] = 1;
+          } else {
+            matriz[this.getAttribute("data-i")][this.getAttribute("data-j")] = 0;
+            matriz[this.getAttribute("data-j")][this.getAttribute("data-i")] = 0;
+          }
+          desenhaGrafo(slider.value);
+          analisaMatriz(slider.value);
+        });
+        if (i==j) {
+          matriz[i][j] = 0
+          checkbox.checked = false;
+        } else {
+          matriz[i][j] = 1;
+          checkbox.checked = true;
+        }
+        if (i>=j) {
+          checkbox.disabled = true;
+        } 
+        
+        matrizChecks.appendChild(checkbox);
+    }
+    if (i<maxMatriz-1) matrizChecks.appendChild(document.createElement("br"));
+}
+
+
+function desenhaMatriz(n) {
+  for (i=0;i<maxMatriz;i++){
+    for (j=0;j<maxMatriz;j++){
+      if ((i<n)&&(j<n)) {
+        document.getElementById("id"+i+"-"+j).style.visibility = "visible";
+      } else {
+        document.getElementById("id"+i+"-"+j).style.visibility = "hidden";
+      }
+
+    }
+  }
+}
+
+function desenhaGrafo(n) {
+  var nos = [];
+  var ligacoes = [];
+  for (i=0;i<n;i++){
+    nos.push({id: i});
+    for (j=0;j<i;j++){ 
+      if ((matriz[i][j]==1)&&(i!=j)){
+        ligacoes.push({from: i, to: j});
+      }
+    }
+  }
+  document.getElementById("container").innerHTML = "";
+  data = {nodes:nos,edges:ligacoes};
+  chart = anychart.graph(data);
+  chart.container("container").draw();
+  chart.nodes().labels().enabled(true);
+  chart.interactivity().scrollOnMouseWheel(true);
+}
+
+function desenhaTudo(n){
+  desenhaMatriz(n);
+  desenhaGrafo(n);
+  analisaMatriz(n);
+}
+
+slider.oninput = function() {
+  document.getElementById("labelMatriz").innerHTML = "Tamanho da matriz: " + this.value;
+}
+
+slider.onchange = function() {
+  desenhaTudo(this.value)
+}
+
+function analisaMatriz(n) {
+  var x;                                                      // elemento da vez
+  var malha = 1;
+  var ligacoes = [n];                                         // vetor para armazenar quantidade de ligacoes em cada nó
+
+  console.clear();
+  for (i=0;i<n;i++){
+    ligacoes[i]=0;
+    for (j=0;j<n;j++){ 
+      if (i!=j) { 
+        x = matriz[i][j];
+        malha*=x;                                             // Para malha, todas ligaçoes precisam ser igual a 1, se alguma for zero, irá multiplicar por zero
+        ligacoes[i]=ligacoes[i]+x;                            // Para estrela, vou somando ligacoes em cada nó
+      }
+    }
+  }
+  console.table(ligacoes);
+  var qtdEstrela = 0;                                         // Deve ser igual a n ao final
+  var qtdAnel = 0;                                            // Deve ser igual a n ao final
+  for (i=0;i<n;i++) {
+    if ((ligacoes[i]==1)||(ligacoes[i]==n-1)) qtdEstrela++;   // Checar se tem somente 1 nó com todas conexoes e todos outros nós com só uma ligação
+    if ((ligacoes[i]==2)) qtdAnel++;                          // Checar se todos nós estão com 2 conexoes 
+  }
+
+  if (malha==1) {
+    chart.title("RESPOSTA: Topologia Malha! Complexidade do algoritmo é n²+2n, ou seja, O=(n²).");
+  } else if (qtdEstrela==n) {  
+    chart.title("RESPOSTA: Topologia Estrela! Complexidade do algoritmo é n²+2n, ou seja, O=(n²).");
+  } else if (qtdAnel==n) {  
+    chart.title("RESPOSTA: Topologia Anel! Complexidade do algoritmo é n²+2n, ou seja, O=(n²).");
+  } else {
+    chart.title("RESPOSTA: Outra topologia! Complexidade do algoritmo é n²+2n, ou seja, O=(n²).");
+  }
+}
+
+desenhaTudo(slider.value);
+
+</script>
+</body>
+</html>
