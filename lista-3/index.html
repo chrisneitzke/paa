@@ -72,20 +72,108 @@ buttonGerarQ1.addEventListener('click', gerarNumerosQ1);
 
 function gerarNumerosQ1() {
   var temp="";
-  for(r=0;r<40;r++) temp+=Math.floor(1+Math.random() * 40)+",";
+  for(r=0;r<40;r++) temp+=Math.floor(1+Math.random() * 60)+",";
   potesQ1.value = temp.substring(0,temp.length-1);
   temp="";
-  for(r=0;r<40;r++) temp+=Math.floor(1+Math.random() * 40)+",";
+  for(r=0;r<40;r++) temp+=Math.floor(1+Math.random() * 60)+",";
   tampasQ1.value = temp.substring(0,temp.length-1);
 
   encontrarRespostaQ1();
 }
 gerarNumerosQ1();
 
-function encontrarRespostaQ1() {
-  //ordenar potes e tampas
-  respostaQ1.innerHTML = "Resposta";
+function merge(arr, l, m, r)
+{
+    var n1 = m - l + 1;
+    var n2 = r - m;
 
+    var L = new Array(n1); 
+    var R = new Array(n2);
+
+    for (var i = 0; i < n1; i++)
+        L[i] = arr[l + i];
+    for (var j = 0; j < n2; j++)
+        R[j] = arr[m + 1 + j];
+
+    var i = 0;
+    var j = 0;
+    var k = l;
+  
+    while (i < n1 && j < n2) {
+        if (L[i] <= R[j]) {
+            arr[k] = L[i];
+            i++;
+        }
+        else {
+            arr[k] = R[j];
+            j++;
+        }
+        k++;
+    }
+
+    while (i < n1) {
+        arr[k] = L[i];
+        i++;
+        k++;
+    }
+
+    while (j < n2) {
+        arr[k] = R[j];
+        j++;
+        k++;
+    }
+}
+
+function mergeSort(arr,l, r){
+    if(l>=r){
+        return;
+    }
+    var m =l+ parseInt((r-l)/2);
+    mergeSort(arr,l,m);
+    mergeSort(arr,m+1,r);
+    merge(arr,l,m,r);
+}
+
+function procuraKits(pan,p,tam,t) {
+  //console.log(pan,p,tam,t);
+  var r;
+
+  if (t<tam.length && p<pan.length) {
+    if (pan[p]>tam[t]) {
+      console.log(">",pan[p],tam[t]);
+      return procuraKits(pan,p,tam,t+1);
+    }
+    if (pan[p]<tam[t]) {
+      console.log("<",pan[p],tam[t]);
+      return procuraKits(pan,p+1,tam,t);
+    }
+    if (pan[p]==tam[t]) {
+      console.log("=",pan[p],tam[t]);
+      r = procuraKits(pan,p+1,tam,t+1);
+      return pan[p]+","+r;
+    } 
+  } else {
+    return "";
+  }
+}
+
+function encontrarRespostaQ1() {
+  var potes = potesQ1.value.split(",");
+  potes = potes.map(Number);
+  var tampas = tampasQ1.value.split(",");
+  tampas = tampas.map(Number);
+
+  // ordernar os potes e as tampas com merge sort
+  mergeSort(potes, 0, potes.length - 1);
+  mergeSort(tampas, 0, tampas.length - 1);
+  var kits = procuraKits(potes,0,tampas,0);
+
+  respostaQ1.innerHTML = "";
+  respostaQ1.innerHTML += "Potes : "+potes+"<br>";
+  respostaQ1.innerHTML += "Tampas: "+tampas+"<br>";
+  respostaQ1.innerHTML += "Kit: "+kits;
+
+  
 }
 
 
@@ -168,7 +256,6 @@ function pocuraItensProximosV(vetor,itens,valor,indice,tam) {
 function encontrarRespostaQ2() {
   var entrada = conjuntoQ2.value.split(",");
   entrada = entrada.map(Number);
- // console.log(entrada);
   const n = entrada.length;
   respostaQ2.innerHTML = "";
 	tq2=0;
