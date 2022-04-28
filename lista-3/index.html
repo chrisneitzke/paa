@@ -113,6 +113,7 @@ buttonRespostaQ1.addEventListener('click', encontrarRespostaQ1);
 buttonGerarQ1.addEventListener('click', gerarNumerosQ1);
 
 function gerarNumerosQ1() {
+  respostaQ1.innerHTML  = "";
   var temp=[];
   while(temp.length < 50){
     var r = Math.floor(1+Math.random() * 98);
@@ -175,20 +176,13 @@ function encontrarRespostaQ1() {
   // ordernar as tampas com merge sort para fazer busca binária nelas
   mergeSort(tampasSoltas, 0, tampasSoltas.length-1);
 
-  console.log('potesSoltos',potesSoltos);
-  console.log('tampasSoltas',tampasSoltas);
-  console.log(kitsCompletos);
-
   // Varrer os potes localizando a tampa correspondente
   for(var i=0;i<potes.length;i++){
-    //console.log('loop',potesSoltos[i]);
     // Se formou o kit completo, entao remove dos vetores para ao final só sobrarem os potes e tampas soltas
     if (buscaBinaria(tampasSoltas,potes[i],0,tampasSoltas.length-1)) {
-      console.info("achou",potes[i]);
       kitsCompletos.push(potes[i]);
       tampasSoltas = tampasSoltas.filter(item => item !== potes[i]);
       potesSoltos = potesSoltos.filter(item => item !== potes[i]);
-      console.log('apos remover',tampasSoltas,potesSoltos);
     } 
   }
 
@@ -203,7 +197,7 @@ function encontrarRespostaQ1() {
   respostaQ1.innerHTML += kitsCompletos.length+" Kits completos: <b>"+kitsCompletos+"</b><br>";
   respostaQ1.innerHTML += potesSoltos.length+" Potes soltos: <b>"+potesSoltos+"</b><br>";
   respostaQ1.innerHTML += tampasSoltas.length+" Tampas soltas: <b>"+tampasSoltas+"</b><br><br>";
-  respostaQ1.innerHTML += "Complexidade: <b>Considerando a execução de duas ordenações merge sort para ordenar potes e tampas, e uma passada geral recursiva pelo vetor de Potes, a complexidade é O(2nlogn + n)";
+  respostaQ1.innerHTML += "Complexidade: <b>O algoritmo executa a ordenação merge sort (O(nlogn)) somente no vetor de tampas. Depois passa por cada elemento do vetor desordenado de potes (O(n)) para localizar a tampa correspondente com busca binária (O(logn)). Assim, a complexidade geral do algoritmo pertence a O(2nlog(n))";
 }
 
 
@@ -223,6 +217,7 @@ buttonGerarQ2.addEventListener('click', gerarNumerosQ2);
 
 //Funcao para gerar dados aleatórios no vetor de entrada, na quantidade de elementos I e no valor desejado V
 function gerarNumerosQ2() {
+  respostaQ2.innerHTML  = "";
   var temp=[];
   while(temp.length < 30){
     var r = Math.floor(1+Math.random() * 98);
@@ -289,14 +284,13 @@ function encontrarRespostaQ2() {
   var entrada = conjuntoQ2.value.split(",");
   entrada = entrada.map(Number);
   const n = entrada.length;
-  respostaQ2.innerHTML = "";
 
   //Ordenando o vetor de entrada
   mergeSort(entrada, 0, entrada.length-1);
 
   var saida = pocuraItensProximosV(entrada, parseInt(qtdIQ2.value), parseInt(valorVQ2.value), n);
  
-  respostaQ2.innerHTML += "Entrada original: <b>"+conjuntoQ2.value.split(",")+"</b><br>";
+  respostaQ2.innerHTML  = "Entrada original: <b>"+conjuntoQ2.value.split(",")+"</b><br>";
   respostaQ2.innerHTML += "Entrada ordenada com merge sort: <b>"+entrada+"</b><br>";
   respostaQ2.innerHTML += "Saída dos "+qtdIQ2.value+" itens mais próximos de "+valorVQ2.value+": <b>"+saida+"</b><br>";
   respostaQ2.innerHTML += "Tamanho da entrada: <b>"+n+"</b><br>";
