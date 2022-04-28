@@ -109,42 +109,55 @@ const buttonGerarQ1 = document.getElementById('buttonGerarQ1');
 const respostaQ1 = document.getElementById("respostaQ1");
 const potesQ1 = document.getElementById("potesQ1");
 const tampasQ1 = document.getElementById("tampasQ1");
-var tq1=0;  //contador de complexidade
 buttonRespostaQ1.addEventListener('click', encontrarRespostaQ1);
 buttonGerarQ1.addEventListener('click', gerarNumerosQ1);
 
 function gerarNumerosQ1() {
-  var temp="";
-  for(r=0;r<40;r++) temp+=Math.floor(1+Math.random() * 60)+",";
-  potesQ1.value = temp.substring(0,temp.length-1);
-  temp="";
-  for(r=0;r<40;r++) temp+=Math.floor(1+Math.random() * 60)+",";
-  tampasQ1.value = temp.substring(0,temp.length-1);
+  var temp=[];
+  while(temp.length < 50){
+    var r = Math.floor(1+Math.random() * 98);
+    if(temp.indexOf(r) === -1) temp.push(r);
+  }
+  potesQ1.value = temp;
 
-  encontrarRespostaQ1();
+  temp=[];
+  while(temp.length < 50){
+    var r = Math.floor(1+Math.random() * 98);
+    if(temp.indexOf(r) === -1) temp.push(r);
+  }
+  tampasQ1.value = temp;
 }
 gerarNumerosQ1();
 
-function procuraKits(pan,p,tam,t) {
-  var r;
+let recursiveFunction = function (arr, x, start, end) {
 
-  if (t<tam.length && p<pan.length) {
-    if (pan[p]>tam[t]) {
-      console.log(">",pan[p],tam[t]);
-      return procuraKits(pan,p,tam,t+1);
-    }
-    if (pan[p]<tam[t]) {
-      console.log("<",pan[p],tam[t]);
-      return procuraKits(pan,p+1,tam,t);
-    }
-    if (pan[p]==tam[t]) {
-      console.log("=",pan[p],tam[t]);
-      r = procuraKits(pan,p+1,tam,t+1);
-      return pan[p]+","+r;
-    } 
-  } else {
-    return "";
+      if (start > end) return false;
+      let mid=Math.floor((start + end)/2);
+
+      if (arr[mid]===x) return true;
+
+      if(arr[mid] > x)
+          return recursiveFunction(arr, x, start, mid-1);
+      else
+          return recursiveFunction(arr, x, mid+1, end);
   }
+
+// Realizar uma busca binária pelo Valor dentro do Vetor = O(log(n))
+function buscaBinaria(vetor, x, esq, dir) {
+  var meio = Math.floor((esq + dir) / 2);
+  
+  if (esq <= dir) { 
+    if (vetor[meio] === x) {
+      return true;
+    } else if (x < vetor[meio]) {
+      dir = meio - 1;
+    } else {
+      esq = meio + 1;
+    }
+    return buscaBinaria(vetor, x, esq, dir);
+  }
+
+  return false;
 }
 
 function encontrarRespostaQ1() {
@@ -152,17 +165,45 @@ function encontrarRespostaQ1() {
   potes = potes.map(Number);
   var tampas = tampasQ1.value.split(",");
   tampas = tampas.map(Number);
+  var potesSoltos = potesQ1.value.split(",");
+  potesSoltos = potesSoltos.map(Number);
+  var tampasSoltas = tampasQ1.value.split(",");
+  tampasSoltas = tampasSoltas.map(Number);
 
-  // ordernar os potes e as tampas com merge sort
-  mergeSort(potes, 0, potes.length - 1);
-  mergeSort(tampas, 0, tampas.length - 1);
-  var kits = procuraKits(potes,0,tampas,0);
+  var kitsCompletos = [];
 
-  respostaQ1.innerHTML = "";
-  respostaQ1.innerHTML += "Potes : "+potes+"<br>";
-  respostaQ1.innerHTML += "Tampas: "+tampas+"<br>";
-  respostaQ1.innerHTML += "Kit completos: "+kits.substring(0,kits.length-1)+"<br><br>";
-  respostaQ1.innerHTML += "Complexidade: Considerando a execução de duas ordenações Merge Sort para ordenar potes e tampas, e uma passada geral recursiva pelo vetor de Potes, a complexidade é O(2nlogn + n)";
+  // ordernar as tampas com merge sort para fazer busca binária nelas
+  mergeSort(tampasSoltas, 0, tampasSoltas.length-1);
+
+  console.log('potesSoltos',potesSoltos);
+  console.log('tampasSoltas',tampasSoltas);
+  console.log(kitsCompletos);
+
+  // Varrer os potes localizando a tampa correspondente
+  for(var i=0;i<potes.length;i++){
+    //console.log('loop',potesSoltos[i]);
+    // Se formou o kit completo, entao remove dos vetores para ao final só sobrarem os potes e tampas soltas
+    if (buscaBinaria(tampasSoltas,potes[i],0,tampasSoltas.length-1)) {
+      console.info("achou",potes[i]);
+      kitsCompletos.push(potes[i]);
+      tampasSoltas = tampasSoltas.filter(item => item !== potes[i]);
+      potesSoltos = potesSoltos.filter(item => item !== potes[i]);
+      console.log('apos remover',tampasSoltas,potesSoltos);
+    } 
+  }
+
+  // Ordenações abaixo somente para fins estéticos na exibição da resposta no HTML e nao são necessárias para a solução do problema
+  mergeSort(potes, 0, potes.length-1);
+  mergeSort(tampas, 0, tampas.length-1);
+  mergeSort(kitsCompletos, 0, kitsCompletos.length-1);
+  mergeSort(potesSoltos, 0, potesSoltos.length-1);
+  mergeSort(tampasSoltas, 0, tampasSoltas.length-1);
+  respostaQ1.innerHTML  = potes.length+" Potes ordenados: <b>"+potes+"</b><br>";
+  respostaQ1.innerHTML += tampas.length+" Tampas ordenadas: <b>"+tampas+"</b><br>";
+  respostaQ1.innerHTML += kitsCompletos.length+" Kits completos: <b>"+kitsCompletos+"</b><br>";
+  respostaQ1.innerHTML += potesSoltos.length+" Potes soltos: <b>"+potesSoltos+"</b><br>";
+  respostaQ1.innerHTML += tampasSoltas.length+" Tampas soltas: <b>"+tampasSoltas+"</b><br><br>";
+  respostaQ1.innerHTML += "Complexidade: <b>Considerando a execução de duas ordenações merge sort para ordenar potes e tampas, e uma passada geral recursiva pelo vetor de Potes, a complexidade é O(2nlogn + n)";
 }
 
 
@@ -190,7 +231,6 @@ function gerarNumerosQ2() {
   conjuntoQ2.value = temp;
   qtdIQ2.value = 3+Math.floor(Math.random() * 7);
   valorVQ2.value = Math.floor(10+Math.random() * 50);
-  encontrarRespostaQ2();
 }
 gerarNumerosQ2();
 
@@ -252,7 +292,7 @@ function encontrarRespostaQ2() {
   respostaQ2.innerHTML = "";
 
   //Ordenando o vetor de entrada
-  mergeSort(entrada, 0, entrada.length - 1);
+  mergeSort(entrada, 0, entrada.length-1);
 
   var saida = pocuraItensProximosV(entrada, parseInt(qtdIQ2.value), parseInt(valorVQ2.value), n);
  
