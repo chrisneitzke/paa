@@ -242,7 +242,7 @@ function encontrarValor(vetor, esq, dir, x) {
   } else {
     return encontrarValor(vetor, esq, meio - 1, x);
   }                  
-}
+}  
 
 // Gerar lista dos K itens mais próximos de X
 function pocuraItensProximosV(vetor,k,x,n) {
@@ -253,7 +253,7 @@ function pocuraItensProximosV(vetor,k,x,n) {
         
   // Ir comparando os valores com o próximo da esquerda e da direita pra pegar o menor da vez enquanto tiver elementos nos dois lados
   while (esq >= 0 && dir < n && qtd < k) {
-      if (x - vetor[esq] < vetor[dir] - x)  {
+      if (x - vetor[esq] <= vetor[dir] - x)  {
           saida.push(vetor[esq]);
           esq--;
       } else {
@@ -272,7 +272,7 @@ function pocuraItensProximosV(vetor,k,x,n) {
     
   // Já que nao tem na esquerda, ir pegando só da direita enquanto tiver
   while (qtd < k && dir < n) {
-      print(vetor[dir]);
+      saida.push(vetor[dir]);
       dir++;
       qtd++;
   }
