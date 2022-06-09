@@ -21,12 +21,11 @@ melhor forma de cortar para maximizar o preço de venda total? Quais são as
 eficiências de tempo e espaço do seu algoritmo?</p>
 
   <form>
-    <label for="potesQ1">Tamanho n: </label>
-    <input type="text" id="potesQ1" name="potesQ1" style="width: 50%;" pattern="[0-9,]+" required><br><br>
-    <label for="tampaQ1">Preços: </label>
-    <input type="text" id="tampasQ1" name="tampasQ1" style="width: 50%;" pattern="[0-9,]+" required><br><br>
-    <input type="button" id="buttonRespostaQ1" value="Juntar potes e tampas">
-    <input type="button" id="buttonGerarQ1" value="Gerar números aleatórios">
+    <label for="tamanhoQ1">Tamanho: </label>
+    <input type="number" id="tamanhoQ1" name="tamanhoQ1"  min="1" disabled><br><br>
+    <label for="precosQ1">Tabela de preços: </label>
+    <input type="text" id="precosQ1" name="precosQ1" style="width: 50%;" value="1,5,8,9,10,17,18,20" pattern="[0-9,]+" required><br><br>
+    <input type="button" id="buttonRespostaQ1" value="Maximizar venda total">
   </form>
 
 <p id="respostaQ1"></p>
@@ -40,264 +39,65 @@ com com cores iguais que estejam conectadas a um mesmo vértice. Explique como
 o problema da coloração de aresta pode ser reduzido a um problema de coloração de
 vértice.
 </p>
-<p>RESPOSTA: O problema de coloração de grafo é geralmente referido como o problema de
-coloração de vértice: Atribua o menor número de cores aos vértices de um
-determinado grafo de tal forma que não existam dois vértices adjacentes da mesma
-cor. Considere o problema de coloração de arestas: atribua o menor número de cores
-possível às arestas de um determinado grafo de tal forma que não haja duas arestas
-com com cores iguais que estejam conectadas a um mesmo vértice. Explique como
-o problema da coloração de aresta pode ser reduzido a um problema de coloração de
-vértice.
+<p>RESPOSTA: Considerando a definição de um grafo linha a qual, dado um grafo G, o respectivo grafo linha de G 
+é o grafo LG cujos os vértices são as arestas de G, e um par de vértices define uma aresta em LG se, 
+e somente se, esses vértices são arestas adjacentes em G. Assim, a coloração de arestas pode ser 
+reduzida a uma coloração de vértices pois pode-se colorir os vértices do respectivo grafo linha.
 </p>
 
-
 <script>
-
-// Implementação do Merge Sort usado nas duas questões para ordenar com complexidade O(nlog(n))
-function merge(arr, l, m, r) {
-    var n1 = m - l + 1;
-    var n2 = r - m;
-
-    var L = new Array(n1); 
-    var R = new Array(n2);
-
-    for (var i = 0; i < n1; i++)
-        L[i] = arr[l + i];
-    for (var j = 0; j < n2; j++)
-        R[j] = arr[m + 1 + j];
-
-    var i = 0;
-    var j = 0;
-    var k = l;
-  
-    while (i < n1 && j < n2) {
-        if (L[i] <= R[j]) {
-            arr[k] = L[i];
-            i++;
-        }
-        else {
-            arr[k] = R[j];
-            j++;
-        }
-        k++;
-    }
-
-    while (i < n1) {
-        arr[k] = L[i];
-        i++;
-        k++;
-    }
-
-    while (j < n2) {
-        arr[k] = R[j];
-        j++;
-        k++;
-    }
-}
-function mergeSort(arr,l, r){
-    if(l>=r)   return;
-    var m =l+ parseInt((r-l)/2);
-    mergeSort(arr,l,m);
-    mergeSort(arr,m+1,r);
-    merge(arr,l,m,r);
-}
-
 
 // QUESTÃO 1 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const buttonRespostaQ1 = document.getElementById('buttonRespostaQ1');
-const buttonGerarQ1 = document.getElementById('buttonGerarQ1');
 const respostaQ1 = document.getElementById("respostaQ1");
-const potesQ1 = document.getElementById("potesQ1");
-const tampasQ1 = document.getElementById("tampasQ1");
+const tamanhoQ1 = document.getElementById("tamanhoQ1");
+const precosQ1 = document.getElementById("precosQ1");
+precosQ1.addEventListener("keypress", atualizaTamanho);
+precosQ1.addEventListener("change", atualizaTamanho);
 buttonRespostaQ1.addEventListener('click', encontrarRespostaQ1);
-buttonGerarQ1.addEventListener('click', gerarNumerosQ1);
 
-function gerarNumerosQ1() {
-  respostaQ1.innerHTML  = "";
-  var temp=[];
-  while(temp.length < 50){
-    var r = Math.floor(1+Math.random() * 98);
-    if(temp.indexOf(r) === -1) temp.push(r);
-  }
-  potesQ1.value = temp;
-
-  temp=[];
-  while(temp.length < 50){
-    var r = Math.floor(1+Math.random() * 98);
-    if(temp.indexOf(r) === -1) temp.push(r);
-  }
-  tampasQ1.value = temp;
+function atualizaTamanho(){
+  tamanhoQ1.value = precosQ1.value.split(",").length;
 }
-gerarNumerosQ1();
+atualizaTamanho();
 
-let recursiveFunction = function (arr, x, start, end) {
+function cortaPedaco(preco, n) {
+  var val = new Array(n + 1);
+  val[0] = 0;
 
-      if (start > end) return false;
-      let mid=Math.floor((start + end)/2);
-
-      if (arr[mid]===x) return true;
-
-      if(arr[mid] > x)
-          return recursiveFunction(arr, x, start, mid-1);
-      else
-          return recursiveFunction(arr, x, mid+1, end);
+  for (var i = 1; i <= n; i++) {
+      var max_val = Number.MIN_VALUE;
+      for (var j = 1; j <= i; j++) {
+          if (preco[j-1] + val[i-j] > max_val) { 
+            max_val = preco[j-1] + val[i-j];  
+          }
+      }
+      val[i] = max_val;
   }
-
-// Realizar uma busca binária pelo Valor dentro do Vetor = O(log(n))
-function buscaBinaria(vetor, x, esq, dir) {
-  var meio = Math.floor((esq + dir) / 2);
-  
-  if (esq <= dir) { 
-    if (vetor[meio] === x) {
-      return true;
-    } else if (x < vetor[meio]) {
-      dir = meio - 1;
-    } else {
-      esq = meio + 1;
-    }
-    return buscaBinaria(vetor, x, esq, dir);
-  }
-
-  return false;
+  console.log(val);
+  return val[n];
 }
 
 function encontrarRespostaQ1() {
-  var potes = potesQ1.value.split(",");
-  potes = potes.map(Number);
-  var tampas = tampasQ1.value.split(",");
-  tampas = tampas.map(Number);
-  var potesSoltos = potesQ1.value.split(",");
-  potesSoltos = potesSoltos.map(Number);
-  var tampasSoltas = tampasQ1.value.split(",");
-  tampasSoltas = tampasSoltas.map(Number);
+  var p = precosQ1.value.split(",");
+  p = p.map(Number);
+  var n = p.length;
 
-  var kitsCompletos = [];
-
-  // ordernar as tampas com merge sort para fazer busca binária nelas
-  mergeSort(tampasSoltas, 0, tampasSoltas.length-1);
-
-  // Varrer os potes localizando a tampa correspondente
-  for(var i=0;i<potes.length;i++){
-    // Se formou o kit completo, entao remove dos vetores para ao final só sobrarem os potes e tampas soltas
-    if (buscaBinaria(tampasSoltas,potes[i],0,tampasSoltas.length-1)) {
-      kitsCompletos.push(potes[i]);
-      tampasSoltas = tampasSoltas.filter(item => item !== potes[i]);
-      potesSoltos = potesSoltos.filter(item => item !== potes[i]);
-    } 
-  }
-
-  // Ordenações abaixo somente para fins estéticos na exibição da resposta no HTML e nao são necessárias para a solução do problema
-  mergeSort(potes, 0, potes.length-1);
-  mergeSort(tampas, 0, tampas.length-1);
-  mergeSort(kitsCompletos, 0, kitsCompletos.length-1);
-  mergeSort(potesSoltos, 0, potesSoltos.length-1);
-  mergeSort(tampasSoltas, 0, tampasSoltas.length-1);
-  respostaQ1.innerHTML  = potes.length+" Potes ordenados: <b>"+potes+"</b><br>";
-  respostaQ1.innerHTML += tampas.length+" Tampas ordenadas: <b>"+tampas+"</b><br>";
-  respostaQ1.innerHTML += kitsCompletos.length+" Kits completos: <b>"+kitsCompletos+"</b><br>";
-  respostaQ1.innerHTML += potesSoltos.length+" Potes soltos: <b>"+potesSoltos+"</b><br>";
-  respostaQ1.innerHTML += tampasSoltas.length+" Tampas soltas: <b>"+tampasSoltas+"</b><br><br>";
-  respostaQ1.innerHTML += "Complexidade: <b>O algoritmo executa a ordenação merge sort (O(nlogn)) somente no vetor de tampas. Depois passa por cada elemento do vetor desordenado de potes (O(n)) para localizar a tampa correspondente com busca binária (O(logn)). Assim, a complexidade geral do algoritmo pertence a O(2nlog(n))";
-}
-
-
-
-
-
-// QUESTÃO 2 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-const buttonRespostaQ2 = document.getElementById('buttonRespostaQ2');
-const buttonGerarQ2 = document.getElementById('buttonGerarQ2');
-const respostaQ2 = document.getElementById("respostaQ2");
-const conjuntoQ2 = document.getElementById("conjuntoCQ2");
-const qtdIQ2 = document.getElementById("qtdIQ2");
-const valorVQ2 = document.getElementById("valorVQ2");
-buttonRespostaQ2.addEventListener('click', encontrarRespostaQ2);
-buttonGerarQ2.addEventListener('click', gerarNumerosQ2);
-
-//Funcao para gerar dados aleatórios no vetor de entrada, na quantidade de elementos I e no valor desejado V
-function gerarNumerosQ2() {
-  respostaQ2.innerHTML  = "";
-  var temp=[];
-  while(temp.length < 30){
-    var r = Math.floor(1+Math.random() * 98);
-    if(temp.indexOf(r) === -1) temp.push(r);
-  }
-  conjuntoQ2.value = temp;
-  qtdIQ2.value = 3+Math.floor(Math.random() * 7);
-  valorVQ2.value = Math.floor(10+Math.random() * 50);
-}
-gerarNumerosQ2();
-
-// Realizar uma busca binária pelo Valor dentro do Vetor = O(log(n))
-function encontrarValor(vetor, esq, dir, x) {
-  if (vetor[dir] <= x)   return dir;
-  if (vetor[esq] > x)    return esq;
-
-  var meio = Math.floor((esq + dir) / 2);
-  if (vetor[meio] <= x && x < vetor[meio + 1]) return meio;
-    
-  if (vetor[meio] < x) {
-    return encontrarValor(vetor, meio + 1, dir, x);
+  if (precosQ1.value.length>0) {
+    respostaQ1.innerHTML  = "O preço máximo para a venda total é: <b>" + cortaPedaco(p, n) + "</b>.";
+    respostaQ1.innerHTML += "<br><br><b>Análise de eficiências de tempo e espaço:</b> A técnica de Programação Dinâmica " +
+    "pode ser utilizada em uma solução que tenha subproblemas sobrepostos, ou seja, à medida que está em execução, está " +
+    "resolvendo um mesmo problema várias vezes. Assim, a utilização de uma memória temporária para as soluções já calculadas " +
+    "aumenta a eficiência do algoritmo, pois evita que subproblemas sejam recalculados desnecessariamente. Desta maneira, o " +
+    "tempo geral para a execução do algoritmo é reduzido, porém, como desvantagem, " +
+    "surge a necessidade de alocação de memória extra para o processamento.";
   } else {
-    return encontrarValor(vetor, esq, meio - 1, x);
+    tamanhoQ1.value="";
+    precosQ1.value="";
+    respostaQ1.innerHTML = "";
   }
-}  
-
-// Gerar lista dos K itens mais próximos de X
-function pocuraItensProximosV(vetor,k,x,n) {
-  var saida = [];
-  var esq = encontrarValor(vetor, 0, n - 1, x);
-  var dir = esq + 1;
-  var qtd = 0;
-        
-  // Ir comparando os valores com o próximo da esquerda e da direita pra pegar o menor da vez enquanto tiver elementos nos dois lados
-  while (esq >= 0 && dir < n && qtd < k) {
-      if (x - vetor[esq] <= vetor[dir] - x)  {
-          saida.push(vetor[esq]);
-          esq--;
-      } else {
-          saida.push(vetor[dir]);
-          dir++;
-      }
-      qtd++;
-  }
-      
-  // Já que nao tem nos dois lados, ir pegando só da esquerda enquanto tiver
-  while (qtd < k && esq >= 0) {
-      saida.push(vetor[esq]);
-      esq--;
-      qtd++;
-  }
-    
-  // Já que nao tem na esquerda, ir pegando só da direita enquanto tiver
-  while (qtd < k && dir < n) {
-      saida.push(vetor[dir]);
-      dir++;
-      qtd++;
-  }
-  
-  return saida;
 }
-
-function encontrarRespostaQ2() {
-  var entrada = conjuntoQ2.value.split(",");
-  entrada = entrada.map(Number);
-  const n = entrada.length;
-
-  //Ordenando o vetor de entrada
-  mergeSort(entrada, 0, entrada.length-1);
-
-  var saida = pocuraItensProximosV(entrada, parseInt(qtdIQ2.value), parseInt(valorVQ2.value), n);
- 
-  respostaQ2.innerHTML  = "Entrada original: <b>"+conjuntoQ2.value.split(",")+"</b><br>";
-  respostaQ2.innerHTML += "Entrada ordenada com merge sort: <b>"+entrada+"</b><br>";
-  respostaQ2.innerHTML += "Saída dos "+qtdIQ2.value+" itens mais próximos de "+valorVQ2.value+": <b>"+saida+"</b><br>";
-  respostaQ2.innerHTML += "Tamanho da entrada: <b>"+n+"</b><br>";
-  respostaQ2.innerHTML += "Complexidade: <b>O algoritmo ordena o vetor de entrada com merge sort (O(nlogn)), realiza uma busca binária (O(logn)) para encontrar o item mais próximo de valor, e faz a iteração de k elementos (O(k)) para gerar a resposta com a quantidade de elementos mais próximos do valor. Portanto, descartando as complexidades de grandeza inferior em O(nlog(n) + log(n) + k), o algoritmo atende à complexidade de O(nlog(n)).</b>";
-}
-
 </script>
 </body>
 </html>
