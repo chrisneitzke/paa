@@ -13,10 +13,9 @@ Aluno: Christiano Anderson Neitzke</h4>
 
 <h3>Trabalho Final</h3>
 
-<p>Dados os horários de chegada e partida de todos os trens que chegam a uma estação ferroviária, 
-  a tarefa é encontrar o número mínimo de plataformas necessárias para a estação ferroviária 
-  para que nenhum trem espere. Recebemos duas matrizes que representam os horários de chegada 
-  e partida dos trens que param.</p>
+<p>Considerando o contexto de pandemia e a atual necessidade de as Zonas Eleitorais realizarem audiências processuais 
+  de modo virtual, bem como o dever de gestão dos recursos públicos com probribadade e eficiência, o algoritmo em
+  estudo visa calcular a quantidade mínima de licenças necessárias para suprir todo o agendamento anual de audiências.</p>
 
 <form>
   <label for="zonas">Quantidade de Zonas Eleitorais: </label>
@@ -24,7 +23,7 @@ Aluno: Christiano Anderson Neitzke</h4>
   <label for="dias">Dias por ano com audiências: </label>
   <input type="number" id="dias" name="dias" value="50" min="1" required><br><br>
   <input type="button" id="buttonGerar" value="Gerar Agendamentos Aleatórios"><br><br>
-  <label for="inicio">Dia de Início do Agendamento: </label>
+  <label for="inicio">Dia Inicial do Agendamento: </label>
   <input type="text" id="inicio" name="inicio" style="width: 50%;" pattern="[0-9,]+" required><br><br>
   <label for="fim">Dia Final do Agendamento: </label>
   <input type="text" id="fim" name="fim" style="width: 50%;" pattern="[0-9,]+" required><br><br>
@@ -67,7 +66,7 @@ function handleMouseMove(e) {
   var offsetY = rect.top; 
   var mouseX = parseInt(e.clientX - offsetX);
   var mouseY = parseInt(e.clientY - offsetY) ;
-  movelog.innerHTML = Math.ceil(mouseY/3) + " / " + Math.ceil(mouseX/3);
+  movelog.innerHTML = "Posição do mouse: Agendamento nº " + Math.ceil(mouseY/3) + " no dia " + Math.ceil(mouseX/3);
 }
 c.addEventListener('mousemove', function(event) {
   handleMouseMove(event);
@@ -280,15 +279,16 @@ function encontrarResposta() {
   i = i.map(Number);
   var f = fim.value.split(",");
   f = f.map(Number);
-  resposta.innerHTML  = "";
-  
+  var ff = fim.value.split(",");
+  ff = ff.map(Number);
+
   setTimeout(function(){  
     var x = encontrarMaximoLicencasForcaBruta(i,f);
     var y = encontrarMaximoLicencasGuloso(i,f);
 
     console.log("Força Bruta:",x,"Guloso:",y);
 
-    resposta.innerHTML  = "Total de <b>" + x + 
+    resposta.innerHTML  = "RESPOSTA: Total de <b>" + x + 
     "</b> licenças necessárias para <b>" + zonas.value + 
     "</b> Zonas Eleitorais com <b>" + dias.value + 
     "</b> audiências por ano, totalizando <b>" + String(i.length).replace(/(.)(?=(\d{3})+$)/g,'$1.') + 
@@ -296,9 +296,8 @@ function encontrarResposta() {
     "</b> passos utilizando Força Bruta " +"</b> e <b>"+String(passosPD).replace(/(.)(?=(\d{3})+$)/g,'$1.')+
     "</b> passos utilizando Estratégia Gulosa.";
     
-    console.log(passosFB,passosPD,(passosPD/passosFB)*100);
     loader.style.visibility="hidden";
-    desenhaCanvas(i,f);
+    desenhaCanvas(i,ff);
   }, 10);  
 
 }
@@ -317,7 +316,7 @@ function encontrarResposta2() {
     var y = encontrarMaximoLicencasGuloso(i,f);
     console.log("Guloso:",y);
 
-    resposta.innerHTML  = "Total de <b>" + y + 
+    resposta.innerHTML  = "RESPOSTA: Total de <b>" + y + 
     "</b> licenças necessárias para <b>" + zonas.value + 
     "</b> Zonas Eleitorais com <b>" + dias.value + 
     "</b> audiências por ano, totalizando <b>" +  String(i.length).replace(/(.)(?=(\d{3})+$)/g,'$1.') + 
