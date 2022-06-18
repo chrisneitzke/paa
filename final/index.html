@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>PPGCC - PAA - 2022.1 - Christiano Neitzke</title>
+</head>
+<body>
+ 
+<h4>Universidade Federal do Maranhão<br>
+Programa de Pós-Graduação em Ciência da Computação<br>
+Projeto e Análise de Algoritmos<br>
+Professor: João Dallyson Sousa de Almeida<br>
+Aluno: Christiano Anderson Neitzke</h4>
+
+<h3>Trabalho Final</h3>
+
+<p>Dados os horários de chegada e partida de todos os trens que chegam a uma estação ferroviária, 
+  a tarefa é encontrar o número mínimo de plataformas necessárias para a estação ferroviária 
+  para que nenhum trem espere. Recebemos duas matrizes que representam os horários de chegada 
+  e partida dos trens que param.</p>
+
+<form>
+  <label for="zonas">Quantidade de Zonas Eleitorais: </label>
+  <input type="number" id="zonas" name="zonas" value="105" min="1" required><br><br>
+  <label for="dias">Dias por ano com audiências: </label>
+  <input type="number" id="dias" name="dias" value="50" min="1" required><br><br>
+  <input type="button" id="buttonGerar" value="Gerar Agendamentos Aleatórios"><br><br>
+  <label for="inicio">Dia de Início do Agendamento: </label>
+  <input type="text" id="inicio" name="inicio" style="width: 50%;" pattern="[0-9,]+" required><br><br>
+  <label for="fim">Dia Final do Agendamento: </label>
+  <input type="text" id="fim" name="fim" style="width: 50%;" pattern="[0-9,]+" required><br><br>
+  <input type="button" id="buttonResposta" value="Calcular Licenças Necessárias usando Força Bruta e Guloso"> 
+  <input type="button" id="buttonResposta2" value="Calcular somente com algoritmo guloso"><br><br>
+</form>
+
+<img src="https://apps.tre-ma.jus.br/georreferenciamento/imagens/carregandop.gif" id="loader" />
+
+<p id="resposta"></p>
+
+<p id="movelog"></p>
+<canvas id="myCanvas" width="1098" height="1098" style="border:1px solid #d3d3d3;">Sem suporte a Canvas</canvas>
+
+<script>
+var passosFB = 0;
+var passosPD = 0;
+const loader = document.getElementById('loader');
+loader.style.visibility="hidden";
+const buttonGerar = document.getElementById('buttonGerar');
+const buttonResposta = document.getElementById('buttonResposta');
+const buttonResposta2 = document.getElementById('buttonResposta2');
+const resposta = document.getElementById("resposta");
+const zonas = document.getElementById("zonas");
+const dias = document.getElementById("dias");
+const inicio = document.getElementById("inicio");
+const fim = document.getElementById("fim");
+buttonGerar.addEventListener('click', gerarDatasAleatorias);
+buttonResposta.addEventListener('click', encontrarResposta);
+buttonResposta2.addEventListener('click', encontrarResposta2);
+var diaI, diaF;
+
+var c = document.getElementById("myCanvas");
+var ctx = c.getContext("2d");
+var movelog = document.getElementById("movelog");
+
+function handleMouseMove(e) {
+  const rect = c.getBoundingClientRect();
+  var offsetX = rect.left;
+  var offsetY = rect.top; 
+  var mouseX = parseInt(e.clientX - offsetX);
+  var mouseY = parseInt(e.clientY - offsetY) ;
+  movelog.innerHTML = Math.ceil(mouseY/3) + " / " + Math.ceil(mouseX/3);
+}
+c.addEventListener('mousemove', function(event) {
+  handleMouseMove(event);
+}, false);
+
+function max(a,b) {
+  if(a>=b) {
+    return a;
+  } else {
+    return b;
+  }
+}
+
+function min(a,b) {
+  if(a<=b) {
+    return a;
+  } else {
+    return b;
+  }
+}
+
+// gerar dadas de agendamento aleatórias para simular o programa
+function gerarDatasAleatorias() {
+  if (zonas.value.length==0) zonas.value="105";
+  if (dias.value.length==0) dias.value="50";
+  var qtdZonas = parseInt(zonas.value);
+  var qtdAgendamentos = parseInt(dias.value);
+
+  var temp;
+  var inicioAgendamento = [];
+  var fimAgendamento = [];
+
+  // para cada Zona Eleitoral
+  for (var i = 0; i < qtdZonas; i++){
+    
+    // para cada dia de audiência previsto no ano
+    for (var j = 0; j < qtdAgendamentos; j++){
+
+      // gerar um dia qualquer até novembro para inicio
+      temp = Math.floor(1+Math.random() * 335);  
+      inicioAgendamento.push(temp);
+
+    }
+  }
+
+  // ordenar todos os inicios
+  mergeSort(inicioAgendamento, 0, inicioAgendamento.length-1);  
+  
+  // para cada início gerado aleatoriamnte
+  for (var j = 0; j < inicioAgendamento.length; j++){
+    
+    // gerar um fim com duracao do pedido de audiencias aleatório de zero a 5 dias
+    fimAgendamento.push(inicioAgendamento[j]+1+Math.floor(Math.random() * 15)); 
+  
+  }
+  
+  inicio.value = inicioAgendamento;
+  fim.value = fimAgendamento;
+}
+
+
+// Implementação do Merge Sort usado nas duas questões para ordenar com complexidade O(nlog(n))
+function merge(arr, l, m, r) {
+  var n1 = m - l + 1;
+  var n2 = r - m;
+
+  var L = new Array(n1); 
+  var R = new Array(n2);
+
+  for (var i = 0; i < n1; i++)
+    L[i] = arr[l + i];
+  for (var j = 0; j < n2; j++)
+    R[j] = arr[m + 1 + j];
+
+  var i = 0;
+  var j = 0;
+  var k = l;
+
+  while (i < n1 && j < n2) {
+    if (L[i] <= R[j]) {
+      arr[k] = L[i];
+      i++;
+    }
+    else {
+      arr[k] = R[j];
+      j++;
+    }
+    k++;
+  }
+
+  while (i < n1) {
+    arr[k] = L[i];
+    i++;
+    k++;
+  }
+
+  while (j < n2) {
+    arr[k] = R[j];
+    j++;
+    k++;
+  }
+}
+
+function mergeSort(arr,l, r){
+  if(l>=r)   return;
+  var m =l+ parseInt((r-l)/2);
+  mergeSort(arr,l,m);
+  mergeSort(arr,m+1,r);
+  merge(arr,l,m,r);
+}
+
+// método para encotrar solução por força bruta  O(n²)
+function encontrarMaximoLicencasForcaBruta(diaIni, diaFim) {
+  passosFB = 1;  //contador de passos necessários no algoritmo
+  var n = diaIni.length; 
+  var contasNecessarias = 1
+  var total = 1;
+  var i = 1, j = 0;
+
+  // passar por todos agendamentos até penúltimo
+  for (var i = 0; i < n-1; i++) {
+    contasNecessarias = 1;
+
+    // passar pelo agendamentos seguintes para checar se algum está no mesmo dia
+    for (var j = i+1; j < n; j++) {
+      passosFB++;
+
+      // se o maior início de agendamento é antes do menor término
+
+   
+        // (arr_i >= arr_j and arr_i <= dep_j) or (arr_j >= arr_i and arr_j <= dep_i);
+
+      if ((diaIni[i] >= diaIni[j] && diaIni[i] <= diaFim[j]) || (diaIni[j] >= diaIni[i] && diaIni[j] <= diaFim[i]))
+      //if (max(diaIni[i], diaIni[j]) <= min(diaFim[i], diaFim[j]))
+        contasNecessarias++;
+    }
+
+    // atualiza o total com a nova quantidade de contas necessárias se ele for maior que o total anterior
+    //total = max(total, contasNecessarias);
+    if(contasNecessarias > total) {
+      total = contasNecessarias;
+      diaI = diaIni[i];
+      diaF = diaFim[i];
+    } 
+  }
+  console.log("Período mais demandado de Força Bruta:",diaI, diaF);
+  return total;
+}
+
+// método para encotrar solução usando estratégia gulosa O(nlgn)
+function encontrarMaximoLicencasGuloso(diaIni, diaFim) {
+  passosPD = 1; //contador de passos necessários no algoritmo
+  var n = diaIni.length;
+  var contasNecessarias = 1;
+  var total = 1;
+  var i = 1;
+  var j = 0;
+
+  // ordenar o vetor de términos já que o de inícios já está ordeando
+  mergeSort(diaFim, 0, diaFim.length-1);  
+
+  // varrer os dois array de inícios e fins 
+  while (i < n && j < n) {
+    passosPD++;
+
+    // se na varredura ordenada o início
+    if (diaIni[i] <= diaFim[j]) {
+      contasNecessarias++;
+      i++;
+    }
+
+    // senao diminui as contas necessárias e passa para o próximo término
+    else if (diaIni[i] > diaFim[j])  {
+      contasNecessarias--;
+      j++;
+    }
+
+    // atualiza o total com a nova quantidade de contas necessárias se ele for maior que o total anterior
+    //total = max(total, contasNecessarias);
+    if(contasNecessarias > total) {
+      total = contasNecessarias;
+      diaI = diaIni[i];
+      diaF = diaFim[i];
+    } 
+  }
+  console.log("Período mais demandado via Guloso:",diaI, diaF);
+  return total;
+}
+
+function desenhaCanvas(i,f){
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.clearRect(0, 0, c.width, c.height);
+  var n = i.length; 
+  c.height = n*3;
+  for (var x = 0; x < n; x++) {
+    ctx.moveTo(i[x]*3, x*3);
+    ctx.lineTo(f[x]*3, x*3);
+    ctx.stroke();
+  }
+}
+
+
+// chamada de ambas funções
+function encontrarResposta() {
+  resposta.innerHTML  = "";
+  loader.style.visibility="visible";
+  if ((inicio.value.length==0) || (fim.value.length==0)) gerarDatasAleatorias();
+  var i = inicio.value.split(",");
+  i = i.map(Number);
+  var f = fim.value.split(",");
+  f = f.map(Number);
+  resposta.innerHTML  = "";
+  
+  setTimeout(function(){  
+    var x = encontrarMaximoLicencasForcaBruta(i,f);
+    var y = encontrarMaximoLicencasGuloso(i,f);
+
+    console.log("Força Bruta:",x,"Guloso:",y);
+
+    resposta.innerHTML  = "Total de <b>" + x + 
+    "</b> licenças necessárias para <b>" + zonas.value + 
+    "</b> Zonas Eleitorais com <b>" + dias.value + 
+    "</b> audiências por ano, totalizando <b>" + String(i.length).replace(/(.)(?=(\d{3})+$)/g,'$1.') + 
+    "</b> agendamentos.<br>Processamento realizado com <b>"+String(passosFB).replace(/(.)(?=(\d{3})+$)/g,'$1.')+
+    "</b> passos utilizando Força Bruta " +"</b> e <b>"+String(passosPD).replace(/(.)(?=(\d{3})+$)/g,'$1.')+
+    "</b> passos utilizando Estratégia Gulosa.";
+    
+    console.log(passosFB,passosPD,(passosPD/passosFB)*100);
+    loader.style.visibility="hidden";
+    desenhaCanvas(i,f);
+  }, 10);  
+
+}
+
+// chamada somente do método guloso
+function encontrarResposta2() {
+  resposta.innerHTML  = "";
+  loader.style.visibility="visible";
+  if ((inicio.value.length==0) || (fim.value.length==0)) gerarDatasAleatorias();
+  var i = inicio.value.split(",");
+  i = i.map(Number);
+  var f = fim.value.split(",");
+  f = f.map(Number);
+
+  setTimeout(function(){  
+    var y = encontrarMaximoLicencasGuloso(i,f);
+    console.log("Guloso:",y);
+
+    resposta.innerHTML  = "Total de <b>" + y + 
+    "</b> licenças necessárias para <b>" + zonas.value + 
+    "</b> Zonas Eleitorais com <b>" + dias.value + 
+    "</b> audiências por ano, totalizando <b>" +  String(i.length).replace(/(.)(?=(\d{3})+$)/g,'$1.') + 
+    "</b> agendamentos.<br>Processamento realizado com <b>"+String(passosPD).replace(/(.)(?=(\d{3})+$)/g,'$1.')+
+    "</b> passos utilizando Estratégia Gulosa.";
+    loader.style.visibility="hidden";
+    desenhaCanvas(i,f);
+  }, 10);  
+}
+
+</script>
+</body>
+</html>
