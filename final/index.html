@@ -146,6 +146,7 @@ function merge(arr, l, m, r) {
   var k = l;
 
   while (i < n1 && j < n2) {
+    passosPD++;
     if (L[i] <= R[j]) {
       arr[k] = L[i];
       i++;
@@ -161,12 +162,14 @@ function merge(arr, l, m, r) {
     arr[k] = L[i];
     i++;
     k++;
+    passosPD++;
   }
 
   while (j < n2) {
     arr[k] = R[j];
     j++;
     k++;
+    passosPD++;
   }
 }
 
